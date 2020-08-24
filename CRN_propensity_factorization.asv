@@ -10,7 +10,7 @@ d = 2;
 % d: the number of species
 % K: the number of reactions.
 syms n [1 d] integer
-% syms gg positive
+syms gg positive
 ncell = sym2cell(n);
 lambda(n) = sym(zeros(K,1));
 lambda_cell = sym2cell(formula(lambda));
@@ -42,11 +42,25 @@ lambda_cell{4}(n) = alpha(4) * n(2);
 
 [a_list_tmp, b_list_tmp, elementary_basis] = CRN_find_elemtary_path(complexes); % the row vectors of H form a basis.
 F = CRN_find_elementary_function(complexes, lambda_cell, alpha);
-start_point = ones(1,d);
+start_point = 3*ones(1,d);
 elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point);
 coord_struct = struct2cell(elementary_coordinates);
 theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));
-factorization_TF = CRN_check_factorization_condition(complexes, lambda_cell, theta, alpha);
+
+%% Check the factorization conditions for all the reactions.
+% compute the function omega using the condition of the first reaction.
+tmp_arg_n_nu1 = sym2cell(cellfun(@sum, ncell) + complexes(1,:));
+omega(ncell{:}) = lambda_cell{1}(tmp_arg_n_nu1{:}) / (alpha(1) *theta(tmp_arg_n_nu1{:})); 
+
+% check all the condtions.
+factorization_TF = zeros(1,K);
+for k = 1:K
+    tmp_arg_n_nuk = sym2cell(cellfun(@sum, ncell) - complexes(k,:));
+    factorization_TF(k) = isAlways(lambda_cell{k} == alpha(k) * theta(ncell{:}) * omega(tmp_arg_n_nuk{:}));
+end
+
+if factorization_TF == 1
+    disp("All the factorization condi
 
 %% Compute complex balanced equilbrium.
 

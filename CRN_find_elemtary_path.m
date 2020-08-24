@@ -1,4 +1,4 @@
-function [a_list, b_list, H] = CRN_find_elemtary_path(complexes)
+function [a_list, b_list, elementary_basis] = CRN_find_elemtary_path(complexes)
 % complexes: K * d matrix whose row vectors are the source complexs of
 % reactions. Note that two of row vectors could be the same in case that
 % the two reactions have a common source complex.
@@ -37,5 +37,5 @@ for l = 1:s
         end
     end
 end
-                
+elementary_basis = H(1:rank(H), :);
 end

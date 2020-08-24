@@ -45,8 +45,22 @@ F = CRN_find_elementary_function(complexes, lambda_cell, alpha);
 start_point = 3*ones(1,d);
 elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point);
 coord_struct = struct2cell(elementary_coordinates);
-theta = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));
-omeg
+theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));
+
+%% Check the factorization conditions for all the reactions.
+% compute the function omega using the condition of the first reaction.
+tmp_arg_n_nu1 = sym2cell(cellfun(@sum, ncell) + complexes(1,:));
+omega(ncell{:}) = lambda_cell{1}(tmp_arg_n_nu1{:}) / (alpha(1) *theta(tmp_arg_n_nu1{:})); 
+
+% check all the condtions.
+factorization_TF = zeros(1,K);
+for k = 1:K
+    tmp_arg_n_nuk = sym2cell(cellfun(@sum, ncell) - complexes(k,:));
+    factorization_TF(k) = isAlways(lambda_cell{k} == alpha(k) * theta(ncell{:}) * omega(tmp_arg_n_nuk{:}));
+end
+
+if factorization_TF == 1
+    disp("All the factorization condi
 
 %% Compute complex balanced equilbrium.
 

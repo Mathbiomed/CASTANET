@@ -4,6 +4,8 @@ clear; clc;
 
 
 % source complexes of the reactions. (each complex could be repeated.)
+% K and d could be determined by [K, d] = size(complexes) after determining
+% complexes but for the simplicity user would enter them here, manually.
 K = 4; 
 d = 2;
 
@@ -48,16 +50,3 @@ coord_struct = struct2cell(elementary_coordinates);
 theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));
 factorization_TF = CRN_check_factorization_condition(complexes, lambda_cell, theta, alpha);
 
-%% Compute complex balanced equilbrium.
-
-syms ca cb k1 k2 k3 k4
-eqn1 = k1 == cb * k3;
-eqn2 = k1+k4*cb == ca * k2;
-he = solve(eqn1,eqn2,ca,cb);
-
-syms ca cb k1 k2 k3 k4
-eqn1 = k1 == ca *cb* k4;
-eqn2 = k1+k3*ca*cb == ca * k2;
-sol1 = solve(eqn1,eqn2,ca,cb);
-sol1.ca
-sol1.cb

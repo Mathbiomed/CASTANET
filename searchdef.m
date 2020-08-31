@@ -9,8 +9,8 @@ clear; clc;
 % % (number of reaction) * (number of species) matrix containing the source and product complex vectors of reactions, respectively.
 % 
 % Fig. 2a example
-sources = [0 0; 2 0; 0 1; 0 1]; 
-products = [1 0; 1 1; 0 0; 1 0]; 
+% sources = [0 0; 2 0; 0 1; 0 1]; 
+% products = [1 0; 1 1; 0 0; 1 0]; 
 % 
 % % Fig. 2d example
 % sources = [2 0 0; 0 1 0; 0 1 0; 0 0 1]; 
@@ -20,9 +20,9 @@ products = [1 0; 1 1; 0 0; 1 0];
 % sources = [1 0; 1 1; 0 1]; 
 % products = [0 1; 0 2; 1 0]; 
 % 
-% % New example - necessary theta-omega
-% sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]; 
-% products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]; 
+% New example - necessary theta-omega
+sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]; 
+products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]; 
 
 
 [K, d] = size(sources);
@@ -47,10 +47,10 @@ syms alpha [1 K] positive
 % lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 % 
 % % Fig. 2a example
-lambda_cell{1}(n) = alpha(1);
-lambda_cell{2}(n) = alpha(2) * n(1) * (n(1) -1);
-lambda_cell{3}(n) = alpha(3) * n(2);
-lambda_cell{4}(n) = alpha(4) * n(2);
+% lambda_cell{1}(n) = alpha(1);
+% lambda_cell{2}(n) = alpha(2) * n(1) * (n(1) -1);
+% lambda_cell{3}(n) = alpha(3) * n(2);
+% lambda_cell{4}(n) = alpha(4) * n(2);
 % 
 % % Fig. 2d example
 % lambda_cell{1}(n) = alpha(1) * n(1) * (n(1) -1);
@@ -64,16 +64,16 @@ lambda_cell{4}(n) = alpha(4) * n(2);
 % lambda_cell{3}(n) = alpha(3) * n(2);
 % assumeAlso(n(1)+n(2) == 20);
 % % New example - necessary theta-omega
-% syms g_const positive
-% lambda_cell{1}(n) = alpha(1) * g_const;
-% lambda_cell{2}(n) = (g_const+1) * alpha(2) * n(1);
-% lambda_cell{3}(n) = g_const * alpha(3) * n(2);
-% lambda_cell{4}(n) = alpha(4) * n(1);
-% lambda_cell{5}(n) = alpha(5) * n(1) *n(2);
-% lambda_cell{6}(n) = alpha(6) * n(2);
-% assumeAlso(alpha(1) == alpha(4));
-% assumeAlso(alpha(2) == alpha(5));
-% assumeAlso(alpha(3) == alpha(6));
+syms g_const positive
+lambda_cell{1}(n) = alpha(1) * g_const;
+lambda_cell{2}(n) = (g_const+1) * alpha(2) * n(1);
+lambda_cell{3}(n) = g_const * alpha(3) * n(2);
+lambda_cell{4}(n) = alpha(4) * n(1);
+lambda_cell{5}(n) = alpha(5) * n(1) *(n(1)-1);
+lambda_cell{6}(n) = alpha(6) * n(1) *n(2);
+assumeAlso(alpha(1) == alpha(4));
+assumeAlso(alpha(2) == alpha(5));
+assumeAlso(alpha(3) == alpha(6));
 
 
 Y = zeros(d, 2*K);
@@ -163,8 +163,16 @@ for k = 1:K_trans
 end
 
 [a_list_tmp, b_list_tmp, elementary_basis] = CRN_find_elemtary_path(sources_trans); % the row vectors of H form a basis.
-F = CRN_find_elementary_function(sources_trans, lambda_trans_cell, kappa);
+F_tmp = CRN_find_elementary_function(sources_trans, lambda_trans_cell, kappa);
+for jj = 1:numel(F_tmp)
+    F{jj} = simplify(F_tmp{jj});
+end
 start_point = ones(1,d);
+
+syms T0 positive
+assumeAlso(T0, 'integer')
+start_point = ones(1,d);
+
 elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point);
 coord_struct = struct2cell(elementary_coordinates);
 theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));

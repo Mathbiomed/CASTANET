@@ -1,4 +1,4 @@
-function F = CRN_find_elementary_function(complexes, lambda_cell, alpha)
+function F = CRN_find_elementary_function(complexes, lambda_cell, kappa)
 
 [~, d] = size(complexes);
 
@@ -24,12 +24,12 @@ for l = 1:number_of_elementary_path
         tmp_arg_n_a = sym2cell(cellfun(@sum, ncell) + trace_of_current_path(j,:));
         
         if j == 1
-            F{l}(ncell{:}) = (lambda_cell{a_list(j)}(tmp_arg_n_a{:})/alpha(a_list(j))) / ...
-                (lambda_cell{b_list(j)}(n1,n2) / alpha(b_list(j)));
+            F{l}(ncell{:}) = (lambda_cell{a_list(j)}(tmp_arg_n_a{:})/kappa(a_list(j))) / ...
+                (lambda_cell{b_list(j)}(n1,n2) / kappa(b_list(j)));
         else
             tmp_arg_n_b = sym2cell(cellfun(@sum, ncell) + trace_of_current_path(j-1,:));
-            F{l}(ncell{:}) = F{l}(ncell{:}) * (lambda_cell{a_list(j)}(tmp_arg_n_a{:})/alpha(a_list(j))) / ...
-                (lambda_cell{b_list(j)}(tmp_arg_n_b{:}) / alpha(b_list(j)));
+            F{l}(ncell{:}) = F{l}(ncell{:}) * (lambda_cell{a_list(j)}(tmp_arg_n_a{:})/kappa(a_list(j))) / ...
+                (lambda_cell{b_list(j)}(tmp_arg_n_b{:}) / kappa(b_list(j)));
         end
     end
 end

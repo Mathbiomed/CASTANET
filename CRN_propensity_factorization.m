@@ -49,3 +49,7 @@ coord_struct = struct2cell(elementary_coordinates);
 theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));
 factorization_TF = CRN_check_factorization_condition(complexes, lambda_cell, theta, alpha);
 
+cbe = CRN_compute_cbe(complexes_for_cbe, M_kappa);
+
+
+

@@ -19,10 +19,10 @@ function cbe = CRN_compute_cbe(complexes, M_kappa)
 % M_kappa = [0, kappa2, kappa4; kappa1, 0, 0; 0, kappa3, 0];
 
 [num_C, d] = size(complexes);
+syms c [1 d] positive
 sources = prod(c.^complexes, 2);
 % sources: num_C X 1 column vector representing the intensity functions of the
 % reactions from each of complexes without the kinetic parameters.
-syms c [1 d] positive
 
 A_k = M_kappa;
 for j = 1:num_C

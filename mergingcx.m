@@ -1,4 +1,4 @@
-function [Solution,Index]=mergingcx(Y)
+function [Solution,Index] = mergingcx(Y)
 
 YY = Y;
 N = size(Y,2)/2; % the number of reactions
@@ -39,7 +39,8 @@ for m = 1:numel(shuffle(:,1))
                         
                         v1=cell2mat(indexset(iindex));
                         v2=cell2mat(indexset(jindex));
-                        indexset(jindex)={union(v1,v2)};
+                        % indexset(jindex)={union(v1,v2)};
+                        indexset(jindex)={[v1, v2]};
                     end
                     % Check the current translation gives us def0 and wr
                     if sw == 1

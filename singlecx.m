@@ -22,7 +22,7 @@ for k = 1:numel(Shuffle2(:,1))
             if j ~= i
                 eta = Y(:,j) - Y(:,i); 
                  if mod(i,2) == 1  % If the i the complex is a source      
-                       if Y(:,i+1) + eta >= 0 && Merging_check(i+1,1) == 0                 
+                       if Y(:,i+1) + eta >= 0 & Merging_check(i+1,1) == 0                 
 
                            % Translate cx i and cx i+1
 
@@ -32,7 +32,7 @@ for k = 1:numel(Shuffle2(:,1))
                               Merging_check(i+1) = 1;
                         end
                  else          % If the i the complex is a product
-                        if Y(:,i-1) + eta >= 0 && Merging_check(i-1,1) == 0             
+                        if Y(:,i-1) + eta >= 0 & Merging_check(i-1,1) == 0             
                            % Translate cx i and cx i+1
                               Y(:,i-1) = Y(:,i-1) + eta;         
                               Y(:,i) = Y(:,j);     
@@ -44,7 +44,7 @@ for k = 1:numel(Shuffle2(:,1))
                       
                   [S1,S2] = countlinkage(Y);
                    
-                   if defi(Y) == 0 && S1 == S2    
+                   if defi(Y) == 0 & S1 == S2    
                       x = check_unique(Y,solution);
                       if x == 1
                           123213
@@ -75,7 +75,7 @@ for i = 1:2:(2*N)
     end
     % Check the current translation gives us def0 and wr          
                 [S1,S2] = countlinkage(Y);
-               if defi(Y) == 0 && S1 == S2    
+               if defi(Y) == 0 & S1 == S2    
                   x = check_unique(Y,solution); 
                   if x == 1
                   solution = [solution;Y];  

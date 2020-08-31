@@ -1,30 +1,44 @@
+% This is a main funtion for Network translation.
+
 clear; clc;
 % Y = [2,0,0;1,1,0;0,1,0;1,0,0;0,1,0;0,0,1;0,0,1;0,1,0]; % Figure 2d
 % Y = Y';
 % Y = [2,0;1,1;1,1;1,0;1,0;2,0]
 
-Y = [2,0;1,1;0,0;1,0;1,0;0,1;0,1;0,0];    % Figure 1
-Y = Y';
-%
-% Y = [0,0,0;1,0,0;2,0,0;1,1,0;0,1,1;0,0,1];  % Cycle
+% Figure 1 example
+sources = [0 0; 1 0; 0 1; 2 0]; % (number of reaction) * (number of species) matrix containing the source complex vectors of reactions.
+products = [1 0; 0 1; 0 0; 1 1]; % (number of reaction) * (number of species) matrix containing the product complex vectors of reactions.
+[N, d] = size(sources);
+%propensities = [];
+
+% Y = [2,0;1,1;0,0;1,0;1,0;0,1;0,1;0,0];    % Figure 1
 % Y = Y';
 
+Y = zeros(d, 2*N);
+for j = 1:N
+    Y(:, 2*j-1) = sources(j,:)';
+    Y(:, 2*j) = products(j,:)';
+end
+
 YY = Y; % Copy the complex matrix
-N = size(Y,2)/2; % Number of source complexes
+
+% Y = [0,0,0;1,0,0;2,0,0;1,1,0;0,1,1;0,0,1];  % Cycle
+% Y = Y';
 
 Solution = {};
 Index = {};
 
-[Solution,Index]=mergingcx(Y);  % Merging reactions
+[Solution,Index] = mergingcx(Y);  % Merging reactions
 
 % Sort out unique rows of Solution and Index
-if numel(Solution)>0
-    [Solution,Index]=find_unique(Solution,Index);
+if numel(Solution) > 0
+    [Solution,Index] = find_unique(Solution,Index);
 end
 
 Solution
+
 % Single complex merging
-if numel(Solution)==0
+if numel(Solution) == 0
     for ii = 1:N
         ind1(ii) = {[ii]};
     end
@@ -46,6 +60,7 @@ else
         Index = [Index;ind];
     end
 end
+
 % Sort out unique rows of Solution and Index
 if numel(Solution) > 0
     [Solution,Index] = find_unique(Solution,Index);

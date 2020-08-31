@@ -11,7 +11,7 @@ Y(end,1) = j;
 for i = 2:M
     sw = 0;
     for k = 1:i-1
-        if Y(1:N,i) == Y(1:N,k) && sw == 0
+        if Y(1:N,i) == Y(1:N,k) & sw == 0
             Y(end,i) = Y(end,k);
             sw = 1;
         end

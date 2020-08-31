@@ -28,7 +28,7 @@ for m = 1:numel(shuffle(:,1))
             
             for kk = ii+1:N
                 k = 2*shuffle(m,kk);
-                if isequal(Y(:,i+1)-Y(:,i),Y(:,k)-Y(:,j)) && (j~=i || k~=i+1) && sw == 0
+                if isequal(Y(:,i+1)-Y(:,i),Y(:,k)-Y(:,j)) & (j~=i || k~=i+1) & sw == 0
                     
                     if k==j+1 % If the pair forms an existing reaction
                         sw=1;
@@ -70,7 +70,7 @@ for m = 1:numel(shuffle(:,1))
                 for k = (i+2):(2*N)
                     %
                     sw = 0;
-                    if Y(:,i+1) - Y(:,i) == Y(:,k) - Y(:,j) && sw==0 && ~isequal(Y(:,i),Y(:,j))
+                    if Y(:,i+1) - Y(:,i) == Y(:,k) - Y(:,j) & sw==0 & ~isequal(Y(:,i),Y(:,j))
                         I = cell2mat(indexset(iindex));
                         for ii = 1:numel(I)
                             Y(:,ii+1) = Y(:,k);
@@ -86,13 +86,13 @@ for m = 1:numel(shuffle(:,1))
                         indexset_tem(remarkers) = [];
                         Y_tem(:,cxmarkers) = [];
                         [S1,S2] = countlinkage(Y_tem);
-                        if defi(Y_tem) == 0 && S1 == S2
+                        if defi(Y_tem) == 0 & S1 == S2
                             
                             Solution = [Solution;Y_tem];
                             for jjj = 1:numel(indexset_tem)
                                 Index(s,jjj) = {cell2mat(indexset_tem(jjj))};
                             end
-                            s=s+1;
+                            s = s + 1;
                         end
                     end                   
                     
@@ -106,6 +106,3 @@ for m = 1:numel(shuffle(:,1))
 end
 
 end
-
-
-

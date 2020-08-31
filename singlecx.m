@@ -47,7 +47,7 @@ for k = 1:numel(Shuffle2(:,1))
                    if defi(Y) == 0 & S1 == S2    
                       x = check_unique(Y,solution);
                       if x == 1
-                          123213
+%                           123213
                       solution = [solution;{Y}]; 
                       index = [index;ind];                     
                       end
@@ -58,7 +58,7 @@ for k = 1:numel(Shuffle2(:,1))
   
 end
 
-11111
+% 11111
 Y=YY; % Refresh Y to the original Y. 
 % Now we cancel out redundant species for each reaction.
 for i = 1:2:(2*N)

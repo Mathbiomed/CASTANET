@@ -2,7 +2,6 @@
 % Only need to edit this part.
 clear; clc;
 
-
 % source complexes of the reactions. (each complex could be repeated.)
 % K and d could be determined by [K, d] = size(complexes) after determining
 % complexes but for the simplicity user would enter them here, manually.

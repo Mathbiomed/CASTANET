@@ -28,11 +28,15 @@ A_k = M_kappa;
 for j = 1:num_C
     A_k(j, j) = -sum(M_kappa(:, j));
 end
+% Laplace matrix.
 
 eqn1 = A_k * sources == 0;
-sol1 = solve(eqn1,c);
+cbe = solve(eqn1,c);
 
 
+
+%%% The below code is not necessary. The code is built for incorporating
+%%% the characteristics of CBE. (solutions of log-linear systems)
 
 reactionTF = zeros(num_C, num_C);
 
@@ -44,7 +48,7 @@ for i = 1:num_C
     end
 end
 num_R = sum(sum(reactionTF));
-% A_k is the matrix satisfying A_k * sources = 0 implies c is a CBE.
+
 % stoichiometric matrix 
 stoi_M = zeros(num_R, d);
 k = 0;
@@ -56,23 +60,6 @@ for j = 1:num_C
         end
     end
 end
-
 syms c0
-
 conservation_law = null(stoi_M, 'r')' * c' == c0;
-
-
-% examples - this part should be removed after complete the code.
-syms ca cb k1 k2 k3 k4
-eqn1 = k1 == cb * k3;
-eqn2 = k1+k4*cb == ca * k2;
-sol1 = solve(eqn1,eqn2,ca,cb);
-
-syms ca cb k1 k2 k3 k4
-eqn1 = k1 == ca *cb* k4;
-eqn2 = k1+k3*ca*cb == ca * k2;
-sol1 = solve(eqn1,eqn2,ca,cb);
-sol1.ca
-sol1.cb
-
 end

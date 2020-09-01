@@ -167,7 +167,6 @@ F_tmp = CRN_find_elementary_function(sources_trans, lambda_trans_cell, kappa);
 for jj = 1:numel(F_tmp)
     F{jj} = simplify(F_tmp{jj});
 end
-start_point = ones(1,d);
 
 syms T0 positive
 assumeAlso(T0, 'integer')

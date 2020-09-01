@@ -38,7 +38,7 @@ syms n [1 d] integer
 ncell = sym2cell(n);
 lambda(n) = sym(zeros(K,1));
 lambda_cell = sym2cell(formula(lambda));
-
+tt = 1;
 syms alpha [1 K] positive
 % % Fig. 1 example
 % lambda_cell{1}(n) = alpha(1);

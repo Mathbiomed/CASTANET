@@ -5,7 +5,6 @@ d = size(Y,1); % the number of species (dimension)
 sources_origin = Y(:, 1:2:(2*K));
 products_origin = Y(:, 2:2:(2*K));
 
-Y_origin = Y;
 shuffle=perms(1:K);
 
 Solution = {};
@@ -24,7 +23,7 @@ for m = 1:numel(shuffle(:,1))
     
     for ii = 1:K  % We fix a reaction to check whether merging is possible.
         i = shuffle(m,ii);       
-        sw = 0;% searching switch
+        sw = 0; % searching switch
         for jj = (ii+1):K  % Search a pair of complexes that have the same reaction vector as the fixed one.
             j = shuffle(m,jj);
             if i > size(sources, 2) | j > size(sources, 2)
@@ -34,7 +33,6 @@ for m = 1:numel(shuffle(:,1))
                 % merging ith reaction to jth reaction
                 remarkers = i;  % mark which reactions are merged
                 % Update the indexset by adding additional merging index
-                
                 v1 = cell2mat(indexset(i));
                 v2 = cell2mat(indexset(j));
                 indexset(j)={[v1, v2]};
@@ -59,9 +57,9 @@ for m = 1:numel(shuffle(:,1))
                     end
                     s = s + 1;
                 end
-                
             end
         end
+        
         if sw == 0  % if no reaction merging has been occured, we check complex merging.
             for j = 1:(2*size(sources,2))  % Search a pair of complexes that have the same reaction vector as the fixed one.
                 for k = 1:(2*size(sources,2))

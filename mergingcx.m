@@ -1,109 +1,102 @@
 function [Solution,Index] = mergingcx(Y)
 
-YY = Y;
-N = size(Y,2)/2; % the number of reactions
-shuffle=perms(1:N);
-% M = numel(indexset(:,1)); % the number of current groups
+K = size(Y,2)/2; % the number of reactions
+d = size(Y,1); % the number of species (dimension)
+sources_origin = Y(:, 1:2:(2*K));
+products_origin = Y(:, 2:2:(2*K));
+
+Y_origin = Y;
+shuffle=perms(1:K);
 
 Solution = {};
 Index = {};
 s = 1;
+
 for m = 1:numel(shuffle(:,1))
+% for m = 1:15
     % Start searching
-    Y = YY;
-    cxmarkers = [];
+    sources = sources_origin;
+    products = products_origin;
     remarkers = [];
-    for ii = 1:N
+    for ii = 1:K
         indexset(ii) = {[ii]};
     end
     
-    
-    for ii = 1:N  % We fix a reaction to check whether merging is possible.
-        i = 2*shuffle(m,ii) - 1;
-        iindex = floor((i+1)/2);
-        
-        sw = 0;         % searching switch
-        for jj = ii+1:N  % Search a pair of complexes that have the same reaction vector as the fixed one.
-            j = 2*shuffle(m,jj) - 1;
-            
-            for kk = ii+1:N
-                k = 2*shuffle(m,kk);
-                if isequal(Y(:,i+1)-Y(:,i),Y(:,k)-Y(:,j)) & (j~=i || k~=i+1) & sw == 0
-                    
-                    if k==j+1 % If the pair forms an existing reaction
-                        sw=1;
-                        jindex=floor((j+1)/2);
-                        cxmarkers=[cxmarkers,i,i+1];   % mark which complexes are merged
-                        remarkers=[remarkers,iindex];  % mark which reactions are merged
-                        % Update the indexset by adding additional merging index
-                        
-                        v1=cell2mat(indexset(iindex));
-                        v2=cell2mat(indexset(jindex));
-                        % indexset(jindex)={union(v1,v2)};
-                        indexset(jindex)={[v1, v2]};
+    for ii = 1:K  % We fix a reaction to check whether merging is possible.
+        i = shuffle(m,ii);       
+        sw = 0;% searching switch
+        for jj = (ii+1):K  % Search a pair of complexes that have the same reaction vector as the fixed one.
+            j = shuffle(m,jj);
+            if i > size(sources, 2) | j > size(sources, 2)
+                continue
+            end
+            if isequal(products(:,i)-sources(:,i), products(:,j)-sources(:,j))% & sw == 0
+                % merging ith reaction to jth reaction
+                remarkers = i;  % mark which reactions are merged
+                % Update the indexset by adding additional merging index
+                
+                v1 = cell2mat(indexset(i));
+                v2 = cell2mat(indexset(j));
+                indexset(j)={[v1, v2]};
+
+                sources(:, i) = sources(:, j);
+                products(:, i) = products(:, j);
+                % Check the current translation gives us def0 and wr
+                indexset(remarkers) = [];
+                sources(:, remarkers) = [];
+                products(:, remarkers) = [];
+                K_trans = size(sources, 2);
+                Y_tmp = zeros(d, 2*K_trans);
+                for idx = 1:K_trans
+                    Y_tmp(:, 2*idx-1) = sources(:,idx);
+                    Y_tmp(:, 2*idx) = products(:,idx);
+                end
+                [S1,S2] = countlinkage(sources, products);
+                if defi(sources, products) == 0 & S1 == S2
+                    Solution = [Solution;Y_tmp];
+                    for jjj = 1:numel(indexset)
+                        Index(s,jjj) = {cell2mat(indexset(jjj))};
                     end
-                    % Check the current translation gives us def0 and wr
-                    if sw == 1
-                        indexset_tem = indexset;
-                        Y_tem = Y;
-                        indexset_tem(remarkers) = [];
-                        Y_tem(:,cxmarkers) = [];
-                        [S1,S2] = countlinkage(Y_tem);
-                        if defi(Y_tem) == 0 && S1 == S2
-                            
-                            Solution = [Solution;Y_tem];
-                            for jjj = 1:numel(indexset_tem)
-                                Index(s,jjj) = {cell2mat(indexset_tem(jjj))};
-                            end
-                            s = s + 1;
-                        end
-                    end
-                   
+                    s = s + 1;
                 end
                 
             end
         end
-        
-        
         if sw == 0  % if no reaction merging has been occured, we check complex merging.
-            
-            for j = (i+2):(2*N)  % Search a pair of complexes that have the same reaction vector as the fixed one.
-                for k = (i+2):(2*N)
-                    %
+            for j = 1:(2*size(sources,2))  % Search a pair of complexes that have the same reaction vector as the fixed one.
+                for k = 1:(2*size(sources,2))
                     sw = 0;
-                    if Y(:,i+1) - Y(:,i) == Y(:,k) - Y(:,j) & sw==0 & ~isequal(Y(:,i),Y(:,j))
-                        I = cell2mat(indexset(iindex));
-                        for ii = 1:numel(I)
-                            Y(:,ii+1) = Y(:,k);
-                            Y(:,ii) = Y(:,j);
+                    complexes_tmp = [sources, products];
+                    if i > size(sources,2) % | i > numel(indexset)
+                        continue
+                    end
+                    if isequal(products(:,i) - sources(:,i), complexes_tmp(:,k) - complexes_tmp(:,j)) & ~isequal(products(:,i), complexes_tmp(:,k)) & k-j ~= K
+                        products(:, i) = complexes_tmp(:,k);
+                        sources(:, i) = complexes_tmp(:,j);
+                        % Check the current translation gives us def0 and wr
+
+                        K_trans = size(sources,2);
+                        Y_tmp = zeros(d, 2*K_trans);
+                        for idx = 1:K_trans
+                            Y_tmp(:, 2*idx-1) = sources(:,idx);
+                            Y_tmp(:, 2*idx) = products(:,idx);
                         end
-                        sw = 1; %  sw = 1 stops unnecessary additional merging for reaction i
-                    end                   
-                    % Check the current translation gives us def0 and wr
-                    if sw == 1
-                        %[i,j,k]
-                        indexset_tem = indexset;
-                        Y_tem = Y;
-                        indexset_tem(remarkers) = [];
-                        Y_tem(:,cxmarkers) = [];
-                        [S1,S2] = countlinkage(Y_tem);
-                        if defi(Y_tem) == 0 & S1 == S2
-                            
-                            Solution = [Solution;Y_tem];
-                            for jjj = 1:numel(indexset_tem)
-                                Index(s,jjj) = {cell2mat(indexset_tem(jjj))};
+                        [S1,S2] = countlinkage(sources, products);
+                        if defi(sources, products) == 0 & S1 == S2
+                            Solution = [Solution;Y_tmp];
+                            for jjj = 1:numel(indexset)
+                                Index(s,jjj) = {cell2mat(indexset(jjj))};
                             end
                             s = s + 1;
                         end
-                    end                   
-                    
+                    end
                 end
+                sw = 1; %  sw = 1 stops unnecessary additional merging for reaction i
             end
         end
-        
-        
+  
     end
-
+    
 end
 
 end

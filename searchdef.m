@@ -4,8 +4,8 @@
 clear; clc;
 
 % Fig. 1 example
-% sources = [0 0; 1 0; 0 1; 2 0]'; 
-% products = [1 0; 0 1; 0 0; 1 1]'; 
+sources = [0 0; 1 0; 0 1; 2 0]'; 
+products = [1 0; 0 1; 0 0; 1 1]'; 
 % (number of reaction) * (number of species) matrix containing the source and product complex vectors of reactions, respectively.
 % 
 % Fig. 2a example
@@ -21,8 +21,8 @@ clear; clc;
 % products = [0 1; 0 2; 1 0]'; 
 % 
 % New example - necessary theta-omega
-sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
-products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]'; 
+% sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
+% products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]'; 
 
 
 [d, K] = size(sources);
@@ -94,7 +94,8 @@ YY = Y; % Copy the complex matrix
 Solution = {};
 Index = {};
 
-[Solution,Index] = mergingcx(Y);  % Merging reactions
+% [Solution,Index] = mergingcx(Y);  % Merging reactions
+[Solution,Index] = mergingcx2(sources, products, 2);  % Merging reactions
 
 % Sort out unique rows of Solution and Index
 if numel(Solution) > 0

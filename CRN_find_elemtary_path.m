@@ -1,16 +1,16 @@
 function [a_list, b_list, elementary_basis] = CRN_find_elemtary_path(complexes)
-% complexes: K * d matrix whose row vectors are the source complexs of
-% reactions. Note that two of row vectors could be the same in case that
+% complexes: d * K matrix whose column vectors are the source complexs of
+% reactions. Note that two of column vectors could be the same in case that
 % the two reactions have a common source complex.
 % K is the number of reactions, d is the number of species.
 % Output H: the row vectors of H forms a basis with elementary paths.
 
-[K, d] = size(complexes);
+[d, K] = size(complexes);
 
 % The entries of A matrix is the difference between two source complexes.
 A = zeros(K-1, d);
 for k = 1:(K-1)
-    A(k, :) = complexes(k+1,:) - complexes(1,:);
+    A(k, :) = complexes(:,k+1) - complexes(:,1);
 end
 [U,H] = hermiteForm(A);
 

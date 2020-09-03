@@ -13,16 +13,21 @@ products = [1 0; 0 1; 0 0; 1 1]';
 % products = [1 0; 1 1; 0 0; 1 0]'; 
 
 % % Fig. 2d example
-% sources = [2 0 0; 0 1 0; 0 1 0; 0 0 1]'; 
-% products = [1 1 0; 0 0 1;1 0 0;0 1 0]'; 
+sources = [2 0 0; 0 1 0; 0 1 0; 0 0 1]'; 
+products = [1 1 0; 0 0 1;1 0 0;0 1 0]'; 
 
 % % Fig. 2g example
 % sources = [1 0; 1 1; 0 1]'; 
 % products = [0 1; 0 2; 1 0]'; 
 % 
 % New example - necessary theta-omega
-% sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
-% products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]'; 
+sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
+products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]'; 
+
+% New example 2  - cycle
+sources = [0 0 0; 1 1 0; 0 1 1]';
+products= [1 0 0; 0 2 0; 0 0 1]';
+
 
 
 [d, K] = size(sources);
@@ -86,8 +91,6 @@ end
 
 YY = Y; % Copy the complex matrix
 
-% Y = [0,0,0;1,0,0;2,0,0;1,1,0;0,1,1;0,0,1];  % Cycle
-% Y = Y';
 
 %% Find translated network without single complex merging.
 
@@ -95,7 +98,7 @@ Solution = {};
 Index = {};
 
 % [Solution,Index] = mergingcx(Y);  % Merging reactions
-[Solution,Index] = CRN_translation(sources, products, 2);  % Merging reactions
+[Solution,Index] = CRN_translation(sources, products, 1);  % Merging reactions
 
 % Sort out unique rows of Solution and Index
 if numel(Solution) > 0

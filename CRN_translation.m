@@ -48,8 +48,14 @@ for k = 1:K
         end
     end
 end
-
-number_of_copies = order_number_cumul(max_order - reaction_orders) + 1;
+number_of_copies = zeros(1,K);
+for k = 1:K
+    if reaction_orders(k) == max_order
+        number_of_copies(k) = 1;
+    else
+        number_of_copies(k) = order_number_cumul(max_order - reaction_orders(k)) + 1;
+    end
+end
 number_of_comb = prod(number_of_copies);
 all_posibilities = ones(K, number_of_comb);
 % create a matrix containing all vectors between ones(K,1) and number_of_copies.

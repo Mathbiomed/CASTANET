@@ -1,4 +1,4 @@
-function [Solution,Index] = mergingcx2(sources, products, max_order)
+function [Solution,Index] = CRN_translation(sources, products, max_order)
 if nargin == 2
     max_order = 2;
 end

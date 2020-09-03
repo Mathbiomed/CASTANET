@@ -95,7 +95,7 @@ Solution = {};
 Index = {};
 
 % [Solution,Index] = mergingcx(Y);  % Merging reactions
-[Solution,Index] = mergingcx2(sources, products, 2);  % Merging reactions
+[Solution,Index] = CRN_translation(sources, products, 2);  % Merging reactions
 
 % Sort out unique rows of Solution and Index
 if numel(Solution) > 0

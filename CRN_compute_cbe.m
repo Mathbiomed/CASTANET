@@ -3,7 +3,7 @@ function cbe = CRN_compute_cbe(complexes, M_kappa)
 % kinetic model with a given kinetic parameters kappa.
 
 % data input
-% complexes: |C| X d matrix whose row vectors are complex vector.
+% complexes: d X |C| matrix whose column vectors are complex vector.
 % note that unlike propensity factorization code, this 'complexes' variable
 % does not contain repeated complexes. All the complexes have to be
 % enumerated without overlapping.
@@ -15,14 +15,15 @@ function cbe = CRN_compute_cbe(complexes, M_kappa)
 
 % test case
 % syms kappa1 kappa2 kappa3 kappa4 positive
-% complexes = [1 1 0; 0 2 0; 0 0 1];
+% complexes = [1 1 0; 0 2 0; 0 0 1]';
 % M_kappa = [0, kappa2, kappa4; kappa1, 0, 0; 0, kappa3, 0];
 
-[num_C, d] = size(complexes);
-syms c [1 d] positive
-sources = prod(c.^complexes, 2);
-% sources: num_C X 1 column vector representing the intensity functions of the
+[d, num_C] = size(complexes);
+syms c [d 1] positive
+intensities = (prod(c.^complexes, 1))';
+% intensities: num_C X 1 column vector representing the intensity functions of the
 % reactions from each of complexes without the kinetic parameters.
+% The underlying kinetics is assumed to be mass-action.
 
 A_k = M_kappa;
 for j = 1:num_C
@@ -30,9 +31,8 @@ for j = 1:num_C
 end
 % Laplace matrix.
 
-eqn1 = A_k * sources == 0;
+eqn1 = A_k * intensities == 0;
 cbe = solve(eqn1,c);
-
 
 
 %%% The below code is not necessary. The code is built for incorporating
@@ -50,16 +50,18 @@ end
 num_R = sum(sum(reactionTF));
 
 % stoichiometric matrix 
-stoi_M = zeros(num_R, d);
+stoi_M = zeros(d, num_R);
 k = 0;
 for j = 1:num_C
     for i = 1:num_C
         if reactionTF(i,j) == 1
             k = k+1;
-            stoi_M(k,:) = complexes(i,:) - complexes(j,:);
+            stoi_M(:,k) = complexes(:,i) - complexes(:,j);
         end
     end
 end
+
 syms c0
-conservation_law = null(stoi_M, 'r')' * c' == c0;
+conservation_law = null(stoi_M', 'r')' * c == c0;
+
 end

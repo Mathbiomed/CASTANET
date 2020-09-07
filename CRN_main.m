@@ -13,20 +13,20 @@ products = [1 0; 0 1; 0 0; 1 1]';
 % products = [1 0; 1 1; 0 0; 1 0]'; 
 
 % % Fig. 2d example
-sources = [2 0 0; 0 1 0; 0 1 0; 0 0 1]'; 
-products = [1 1 0; 0 0 1;1 0 0;0 1 0]'; 
+% sources = [2 0 0; 0 1 0; 0 1 0; 0 0 1]'; 
+% products = [1 1 0; 0 0 1;1 0 0;0 1 0]'; 
 
 % % Fig. 2g example
 % sources = [1 0; 1 1; 0 1]'; 
 % products = [0 1; 0 2; 1 0]'; 
 % 
 % New example - necessary theta-omega
-sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
-products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]'; 
+% sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
+% products = [1 0; 0 1; 0 0; 2 0; 1 1 ; 1 0]'; 
 
 % New example 2  - cycle
-sources = [0 0 0; 1 1 0; 0 1 1]';
-products= [1 0 0; 0 2 0; 0 0 1]';
+% sources = [0 0 0; 1 1 0; 0 1 1]';
+% products= [1 0 0; 0 2 0; 0 0 1]';
 
 
 
@@ -47,10 +47,10 @@ lambda_cell = sym2cell(formula(lambda));
 syms alpha [K 1] positive
 % % Fig. 1 example
 
-% lambda_cell{1}(n) = alpha(1);
-% lambda_cell{2}(n) = alpha(2) * n(1);
-% lambda_cell{3}(n) = alpha(3) * n(2);
-% lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
+lambda_cell{1}(n) = alpha(1);
+lambda_cell{2}(n) = alpha(2) * n(1);
+lambda_cell{3}(n) = alpha(3) * n(2);
+lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
 % 
 % Fig. 2a example
@@ -107,7 +107,7 @@ lambda_trans(n) = sym(zeros(K_trans,1));
 lambda_trans_cell = sym2cell(formula(lambda_trans));
 
 for k = 1:K_trans
-    for j = cell2mat(Index(trans_net,k))
+    for j = Index{trans_net,k}
         lambda_trans_cell{k} = lambda_trans_cell{k} + lambda_cell{j};
     end
 end
@@ -139,13 +139,15 @@ factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans
 
 %% Compute CBE and derive a stationary distribuiton \pi(n).
 
-[complexes_for_cbe, ~ , sources_idx] = unique(sources_trans, 'rows', 'stable');
+[complexes_for_cbe, ~ , sources_idx] = unique(sources_trans', 'rows', 'stable');
 
-num_C_trans = size(complexes_for_cbe,1);
+complexes_for_cbe = complexes_for_cbe';
+
+num_C_trans = size(complexes_for_cbe, 2);
 products_idx = zeros(K_trans, 1);
 for k = 1:K_trans
     for j = 1:num_C_trans
-        if isequal(products_trans(k,:), complexes_for_cbe(j,:))
+        if isequal(products_trans(:,k), complexes_for_cbe(:,j))
             products_idx(k) = j;
         end
     end

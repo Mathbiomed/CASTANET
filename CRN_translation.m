@@ -94,12 +94,7 @@ for ii = 1:number_of_comb
         sources_unique = complexes_unique(1:d,:);
         products_unique = complexes_unique((d+1):(2*d),:);
         K_trans = size(sources_unique, 2);
-        Y_tmp = zeros(d, 2*K_trans);
-        for idx = 1:K_trans
-            Y_tmp(:, 2*idx-1) = sources_unique(:,idx);
-            Y_tmp(:, 2*idx) = products_unique(:,idx);
-        end
-        Solution = [Solution;Y_tmp];
+        Solution = [Solution; {sources_unique, products_unique}];
         indexset = cell(1,K_trans);
         for k = 1:K
             indexset{ic(k)} = [indexset{ic(k)}, k];

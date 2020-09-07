@@ -4,8 +4,8 @@
 clear; clc;
 
 % Fig. 1 example
-sources = [0 0; 1 0; 0 1; 2 0]'; 
-products = [1 0; 0 1; 0 0; 1 1]'; 
+% sources = [0 0; 1 0; 0 1; 2 0]'; 
+% products = [1 0; 0 1; 0 0; 1 1]'; 
 % (number of reaction) * (number of species) matrix containing the source and product complex vectors of reactions, respectively.
 % 
 % Fig. 2a example
@@ -17,8 +17,8 @@ products = [1 0; 0 1; 0 0; 1 1]';
 % products = [1 1 0; 0 0 1;1 0 0;0 1 0]'; 
 
 % % Fig. 2g example
-% sources = [1 0; 1 1; 0 1]'; 
-% products = [0 1; 0 2; 1 0]'; 
+sources = [1 0; 1 1; 0 1]'; 
+products = [0 1; 0 2; 1 0]'; 
 % 
 % New example - necessary theta-omega
 % sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
@@ -38,8 +38,9 @@ products = [1 0; 0 1; 0 0; 1 1]';
 
 % d: the number of species
 % K: the number of reactions.
-syms n [d 1] integer
+syms n [d 1] integer 
 % syms gg positive
+assumeAlso(n >= 0) % nonnegativity of numbers
 ncell = sym2cell(n);
 lambda(n) = sym(zeros(K,1));
 lambda_cell = sym2cell(formula(lambda));
@@ -47,10 +48,10 @@ lambda_cell = sym2cell(formula(lambda));
 syms alpha [K 1] positive
 % % Fig. 1 example
 
-lambda_cell{1}(n) = alpha(1);
-lambda_cell{2}(n) = alpha(2) * n(1);
-lambda_cell{3}(n) = alpha(3) * n(2);
-lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
+% lambda_cell{1}(n) = alpha(1);
+% lambda_cell{2}(n) = alpha(2) * n(1);
+% lambda_cell{3}(n) = alpha(3) * n(2);
+% lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
 % 
 % Fig. 2a example
@@ -66,10 +67,12 @@ lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 % lambda_cell{4}(n) = alpha(4) * n(3);
 % % 
 % Fig. 2g example
-% lambda_cell{1}(n) = alpha(1) * n(1);
-% lambda_cell{2}(n) = alpha(2) * n(1) *n(2);
-% lambda_cell{3}(n) = alpha(3) * n(2);
+lambda_cell{1}(n) = alpha(1) * n(1);
+lambda_cell{2}(n) = alpha(2) * n(1) *n(2);
+lambda_cell{3}(n) = alpha(3) * n(2);
 % assumeAlso(n(1)+n(2) == 20);
+
+
 % % New example - necessary theta-omega
 % syms g_const positive
 % lambda_cell{1}(n) = alpha(1) * g_const;
@@ -96,13 +99,14 @@ trans_net = 1; % index of translated network.
 
 sources_trans = Solution{trans_net, 1};
 products_trans = Solution{trans_net, 2};
+stoi_trans = products_trans - sources_trans;
 
 K_trans = size(sources_trans, 2);
 % K_trans: the number of the reactions of the translated network
 
 % construct propensities of the translated network.
 
-ncell = sym2cell(n);
+% ncell = sym2cell(n);
 lambda_trans(n) = sym(zeros(K_trans,1));
 lambda_trans_cell = sym2cell(formula(lambda_trans));
 
@@ -122,16 +126,20 @@ for k = 1:K_trans
 end
 
 [a_list_tmp, b_list_tmp, elementary_basis] = CRN_find_elemtary_path(sources_trans); % the row vectors of H form a basis.
-F_tmp = CRN_find_elementary_function(sources_trans, lambda_trans_cell, kappa);
+F_tmp = CRN_find_elementary_function(sources_trans, lambda_trans_cell, ncell, kappa);
 for jj = 1:numel(F_tmp)
     F{jj} = simplify(F_tmp{jj});
 end
 
 % syms T0 positive
 % assumeAlso(T0, 'integer')
-start_point = ones(1,d);
+start_point = 10*ones(d,1);
 
-elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point);
+elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point, n);
+
+conservation_law = null(stoi_trans', 'r')' * (n-start_point) == 0;
+assumeAlso(conservation_law)
+
 coord_struct = struct2cell(elementary_coordinates);
 theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));
 factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans_cell, theta, kappa);

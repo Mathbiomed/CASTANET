@@ -17,7 +17,8 @@ s = rank(basis);
 basis = basis(1:s, :);
 n_vector = sym('n', [1 d], 'integer');
 
-assumeAlso((n_vector - start_point) * Z == 0) % this assumption makes n in the augmented state space.
+assumeAlso((n_vector - start_point) * Z == 0) 
+% this assumption forces n in the augmented state space.
 
 c_vector = sym('c', [1 s], 'integer');
 solutions = solve(c_vector * basis == n_vector - start_point, c_vector, 'ReturnConditions', true);

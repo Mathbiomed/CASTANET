@@ -122,7 +122,7 @@ end
 syms kappa [1 K_trans] positive
 for k = 1:K_trans
     tmp = cell2mat(Index(trans_net,k));
-    kappa(k) = alpha(tmp(end));
+    kappa(k) = alpha(min(tmp));
 end
 
 [a_list_tmp, b_list_tmp, elementary_basis] = CRN_find_elemtary_path(sources_trans); % the row vectors of H form a basis.
@@ -140,8 +140,8 @@ elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point, n);
 conservation_law = null(stoi_trans', 'r')' * (n-start_point) == 0;
 assumeAlso(conservation_law)
 
-coord_struct = struct2cell(elementary_coordinates);
-theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_struct, elementary_basis, F));
+coord_cell = struct2cell(elementary_coordinates);
+theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_cell, elementary_basis, F));
 factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans_cell, theta, kappa);
 
 

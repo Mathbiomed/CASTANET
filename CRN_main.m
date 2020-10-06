@@ -1,13 +1,19 @@
-% This is a main funtion for Network translation.
+% This is the main function for deriving stationary distribution. 
+% The following four steps (Fig. 1) are sequentially performed by this code.
+% 1) Network translation,
+% 2) Propensity factorization,
+% 3) CBE calculation
+% 4) Deriving Stationary distribution.
 
 %% Initialization of all input variables and parameters
 clear; clc;
 
 % Fig. 1 example
-% sources = [0 0; 1 0; 0 1; 2 0]'; 
-% products = [1 0; 0 1; 0 0; 1 1]'; 
-% (number of reaction) * (number of species) matrix containing the source and product complex vectors of reactions, respectively.
-% 
+sources = [0 0; 1 0; 0 1; 2 0]';
+products = [1 0; 0 1; 0 0; 1 1]';
+% (number of reaction) * (number of species) matrix containing the source 
+% and product complex vectors of reactions, respectively.
+
 % Fig. 2a example
 % sources = [0 0; 2 0; 0 1; 0 1]'; 
 % products = [1 0; 1 1; 0 0; 1 0]'; 
@@ -17,8 +23,8 @@ clear; clc;
 % products = [1 1 0; 0 0 1;1 0 0;0 1 0]'; 
 
 % % Fig. 2g example
-sources = [1 0; 1 1; 0 1]'; 
-products = [0 1; 0 2; 1 0]'; 
+% sources = [1 0; 1 1; 0 1]'; 
+% products = [0 1; 0 2; 1 0]'; 
 % 
 % New example - necessary theta-omega
 % sources = [0 0; 1 0; 0 1; 1 0; 2 0; 1 1]'; 
@@ -46,12 +52,12 @@ lambda(n) = sym(zeros(K,1));
 lambda_cell = sym2cell(formula(lambda));
 % tt = 1;
 syms alpha [K 1] positive
-% % Fig. 1 example
 
-% lambda_cell{1}(n) = alpha(1);
-% lambda_cell{2}(n) = alpha(2) * n(1);
-% lambda_cell{3}(n) = alpha(3) * n(2);
-% lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
+% Fig. 1 example
+lambda_cell{1}(n) = alpha(1);
+lambda_cell{2}(n) = alpha(2) * n(1);
+lambda_cell{3}(n) = alpha(3) * n(2);
+lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
 % 
 % Fig. 2a example
@@ -67,9 +73,9 @@ syms alpha [K 1] positive
 % lambda_cell{4}(n) = alpha(4) * n(3);
 % % 
 % Fig. 2g example
-lambda_cell{1}(n) = alpha(1) * n(1);
-lambda_cell{2}(n) = alpha(2) * n(1) *n(2);
-lambda_cell{3}(n) = alpha(3) * n(2);
+% lambda_cell{1}(n) = alpha(1) * n(1);
+% lambda_cell{2}(n) = alpha(2) * n(1) *n(2);
+% lambda_cell{3}(n) = alpha(3) * n(2);
 % assumeAlso(n(1)+n(2) == 20);
 
 
@@ -85,14 +91,11 @@ lambda_cell{3}(n) = alpha(3) * n(2);
 % assumeAlso(alpha(2) == alpha(5));
 % assumeAlso(alpha(3) == alpha(6));
 
-%% Find translated network
+%% Performing Network translation
 
 [Solution,Index] = CRN_translation(sources, products, 2);  % Merging reactions
 
-% Solution{:}
-% Index{:}
-
-%% Performing propensity factorization 
+%% Performing Propensity factorization 
 % Choose one of translated network
 trans_net = 1; % index of translated network.
 % 1 <= trans_net <= numel(Solution)
@@ -133,7 +136,7 @@ end
 
 % syms T0 positive
 % assumeAlso(T0, 'integer')
-start_point = 10*ones(d,1);
+start_point = ones(d,1);
 
 elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point, n);
 

@@ -11,6 +11,7 @@ clear; clc;
 % Fig. 1 example
 sources = [0 0; 1 0; 0 1; 2 0]';
 products = [1 0; 0 1; 0 0; 1 1]';
+
 % (number of reaction) * (number of species) matrix containing the source 
 % and product complex vectors of reactions, respectively.
 
@@ -95,61 +96,65 @@ lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
 [Solution,Index] = CRN_translation(sources, products, 2);  % Merging reactions
 
+
 %% Performing Propensity factorization 
+
 % Choose one of translated network
-trans_net = 1; % index of translated network.
-% 1 <= trans_net <= numel(Solution)
+for trans_net = 1:numel(Solution); % index of translated network.
+    % 1 <= trans_net <= numel(Solution)
 
-sources_trans = Solution{trans_net, 1};
-products_trans = Solution{trans_net, 2};
-stoi_trans = products_trans - sources_trans;
+    sources_trans = Solution{trans_net, 1};
+    products_trans = Solution{trans_net, 2};
+    stoi_trans = products_trans - sources_trans;
 
-K_trans = size(sources_trans, 2);
-% K_trans: the number of the reactions of the translated network
+    K_trans = size(sources_trans, 2);
+    % K_trans: the number of the reactions of the translated network
 
-% construct propensities of the translated network.
+    % construct propensities of the translated network.
 
-% ncell = sym2cell(n);
-lambda_trans(n) = sym(zeros(K_trans,1));
-lambda_trans_cell = sym2cell(formula(lambda_trans));
+    % ncell = sym2cell(n);
+    lambda_trans(n) = sym(zeros(K_trans,1));
+    lambda_trans_cell = sym2cell(formula(lambda_trans));
 
-for k = 1:K_trans
-    for j = Index{trans_net,k}
-        lambda_trans_cell{k} = lambda_trans_cell{k} + lambda_cell{j};
+    for k = 1:K_trans
+        for j = Index{trans_net,k}
+            lambda_trans_cell{k} = lambda_trans_cell{k} + lambda_cell{j};
+        end
+    end
+
+    % set up the kinetic parameters kappa_k for the deterministic mass-action
+    % kinetic model on the translated network.
+
+
+    syms kappa [1 K_trans] positive
+    for k = 1:K_trans
+        tmp = cell2mat(Index(trans_net,k));
+        kappa(k) = alpha(min(tmp));
+    end
+
+    [a_list_tmp, b_list_tmp, elementary_basis] = CRN_find_elementary_path(sources_trans); % the row vectors of H form a basis.
+    F_tmp = CRN_find_elementary_function(sources_trans, lambda_trans_cell, ncell, kappa);
+    for jj = 1:numel(F_tmp)
+        F{jj} = simplify(F_tmp{jj});
+    end
+
+    % syms T0 positive
+    % assumeAlso(T0, 'integer')
+    start_point = ones(d,1);
+
+    elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point, n);
+
+    conservation_law = null(stoi_trans', 'r')' * (n-start_point) == 0;
+    assumeAlso(conservation_law)
+
+    coord_cell = struct2cell(elementary_coordinates);
+    theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_cell, elementary_basis, F));
+    factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans_cell, theta, kappa);
+    if prod(factorization_TF) == 1
+        break;
     end
 end
-
-% set up the kinetic parameters kappa_k for the deterministic mass-action
-% kinetic model on the translated network.
-
-syms kappa [1 K_trans] positive
-for k = 1:K_trans
-    tmp = cell2mat(Index(trans_net,k));
-    kappa(k) = alpha(min(tmp));
-end
-
-[a_list_tmp, b_list_tmp, elementary_basis] = CRN_find_elemtary_path(sources_trans); % the row vectors of H form a basis.
-F_tmp = CRN_find_elementary_function(sources_trans, lambda_trans_cell, ncell, kappa);
-for jj = 1:numel(F_tmp)
-    F{jj} = simplify(F_tmp{jj});
-end
-
-% syms T0 positive
-% assumeAlso(T0, 'integer')
-start_point = ones(d,1);
-
-elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point, n);
-
-conservation_law = null(stoi_trans', 'r')' * (n-start_point) == 0;
-assumeAlso(conservation_law)
-
-coord_cell = struct2cell(elementary_coordinates);
-theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_cell, elementary_basis, F));
-factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans_cell, theta, kappa);
-
-
-%% Compute CBE and derive a stationary distribuiton \pi(n).
-
+%% Compute CBE and derive a stationary distribuiton pi(n).
 [complexes_for_cbe, ~ , sources_idx] = unique(sources_trans', 'rows', 'stable');
 
 complexes_for_cbe = complexes_for_cbe';
@@ -164,7 +169,7 @@ for k = 1:K_trans
     end
 end
 
-M_kappa = sym(zeros(num_C_trans, num_C_trans));
+M_kappa = sym(zeros(num_C_trans, num_C_trans)); % 
 
 for k = 1:K_trans
    M_kappa(products_idx(k), sources_idx(k)) = kappa(k);
@@ -172,6 +177,25 @@ end
 
 cbe = CRN_compute_cbe(complexes_for_cbe, M_kappa);
 
-pi = simplify(prod(struct2cell(cbe)'.^n) / theta);
+pi = simplify(prod(struct2cell(cbe).^n) / theta);
 
+
+disp("The source complexes of the translated network: ")
+disp(Solution{trans_net,1})
+disp("The product complexes of the translated network: ")
+disp(Solution{trans_net,2})
+for k = 1:K_trans
+    if rem(k,10) == 1 & k ~= 11
+        disp([num2str(k), 'st reaction propensity of the translated network: '])
+    elseif rem(k,10) == 2 & k ~= 12
+        disp([num2str(k), 'nd reaction propensity of the translated network: '])
+    elseif rem(k,10) == 3 & k ~= 13
+        disp([num2str(k), 'rd reaction propensity of the translated network: '])
+    else
+        disp([num2str(k), 'th reaction propensity of the translated network: '])
+    end
+    disp(lambda_trans_cell{k})
+end
+disp("Analytic formula of the stationary distribution: ")
+disp(pi)
 

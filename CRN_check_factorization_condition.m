@@ -14,7 +14,7 @@ for k = 1:K
     factorization_TF(k) = isAlways(lambda_cell{k} == kappa(k) * theta(ncell{:}) * omega(tmp_arg_n_nuk{:}));
 end
 
-if factorization_TF == 1
+if prod(factorization_TF) == 1
     disp("All the factorization conditions hold!");
 else
     disp("Some of factorization conditions do not hold!");

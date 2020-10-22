@@ -6,7 +6,7 @@ function F = CRN_find_elementary_function(complexes, lambda_cell, ncell, kappa)
 % syms n [d 1] integer
 % ncell = sym2cell(n);
 
-[a_list_tmp, b_list_tmp, H] = CRN_find_elemtary_path(complexes);
+[a_list_tmp, b_list_tmp, H] = CRN_find_elementary_path(complexes);
 % the row vectors of H form a basis.
 
 number_of_elementary_path = rank(H);

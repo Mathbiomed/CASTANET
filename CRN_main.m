@@ -102,7 +102,7 @@ lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 % Choose one of translated network
 for trans_net = 1:numel(Solution); % index of translated network.
     % 1 <= trans_net <= numel(Solution)
-
+    disp(['Performing propensity factorization for a translated network ', num2str(trans_net), '.']);
     sources_trans = Solution{trans_net, 1};
     products_trans = Solution{trans_net, 2};
     stoi_trans = products_trans - sources_trans;
@@ -140,8 +140,19 @@ for trans_net = 1:numel(Solution); % index of translated network.
 
     % syms T0 positive
     % assumeAlso(T0, 'integer')
-    start_point = ones(d,1);
-
+    sp_flag = 0; % flag for finding an appropriate start point n_0 for the theta construction step.
+    sp_weight = 0;
+    while sp_flag == 0
+        sp_flag = 1;
+        start_point = sp_weight * ones(d,1);
+        for k = 1:K_trans
+            sp_plus_stoi = num2cell(start_point + sources_trans(:,k));
+            if ~isAlways(lambda_trans_cell{k}(sp_plus_stoi{:}) > 0)
+                sp_flag = 0;
+            end
+        end
+    end
+    
     elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point, n);
 
     conservation_law = null(stoi_trans', 'r')' * (n-start_point) == 0;

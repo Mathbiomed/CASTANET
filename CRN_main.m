@@ -96,11 +96,13 @@ lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
 [Solution,Index] = CRN_translation(sources, products, 2);  % Merging reactions
 
+disp(['The number of weakly reversible and deficiency zero translated networks is ', num2str(numel(Solution)/2),'.']);
 
 %% Performing Propensity factorization 
 
 % Choose one of translated network
-for trans_net = 1:numel(Solution); % index of translated network.
+PF_idx = 0;
+for trans_net = 1:(numel(Solution)/2) % index of translated network.
     % 1 <= trans_net <= numel(Solution)
     disp(['Performing propensity factorization for a translated network ', num2str(trans_net), '.']);
     sources_trans = Solution{trans_net, 1};
@@ -162,9 +164,16 @@ for trans_net = 1:numel(Solution); % index of translated network.
     theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_cell, elementary_basis, F));
     factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans_cell, theta, kappa);
     if prod(factorization_TF) == 1
+        disp("All the factorization conditions hold!");
+        PF_idx = 1;
         break;
     end
 end
+
+if PF_idx == 0
+     disp("All the translated networks do not have the desired propensity factorization!");
+end
+
 %% Compute CBE and derive a stationary distribuiton pi(n).
 [complexes_for_cbe, ~ , sources_idx] = unique(sources_trans', 'rows', 'stable');
 

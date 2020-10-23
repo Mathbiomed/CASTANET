@@ -102,7 +102,7 @@ for ii = 1:number_of_comb
         Index = [Index; indexset];
     end
     if rem(ii,floor(number_of_comb/20)) == 0
-        disp(['Searching translated netowrks ... ', num2str(100*ii/number_of_comb, 3), '% completed.']);
+%         disp(['Searching translated netowrks ... ', num2str(100*ii/number_of_comb, 3), '% completed.']);
     end
 end
 

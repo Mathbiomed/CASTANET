@@ -50,44 +50,43 @@ syms n [d 1] integer
 assumeAlso(n >= 0) % nonnegativity of numbers
 ncell = sym2cell(n);
 lambda(n) = sym(zeros(K,1));
-lambda_cell = sym2cell(formula(lambda));
+lambda_k = sym2cell(formula(lambda));
 % tt = 1;
 syms alpha [K 1] positive
-
 % Fig. 1 example
-lambda_cell{1}(n) = alpha(1);
-lambda_cell{2}(n) = alpha(2) * n(1);
-lambda_cell{3}(n) = alpha(3) * n(2);
-lambda_cell{4}(n) = alpha(4) * n(1) * (n(1) -1);
+lambda_k{1}(n) = alpha(1);
+lambda_k{2}(n) = alpha(2) * n(1);
+lambda_k{3}(n) = alpha(3) * n(2);
+lambda_k{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
 % 
 % Fig. 2a example
-% lambda_cell{1}(n) = alpha(1);
-% lambda_cell{2}(n) = alpha(2) * n(1) * (n(1) -1);
-% lambda_cell{3}(n) = alpha(3) * n(2);
-% lambda_cell{4}(n) = alpha(4) * n(2);
+% lambda_k{1}(n) = alpha(1);
+% lambda_k{2}(n) = alpha(2) * n(1) * (n(1) -1);
+% lambda_k{3}(n) = alpha(3) * n(2);
+% lambda_k{4}(n) = alpha(4) * n(2);
 
 % % Fig. 2d example
-% lambda_cell{1}(n) = alpha(1) * n(1) * (n(1) -1);
-% lambda_cell{2}(n) = alpha(2) * n(2);
-% lambda_cell{3}(n) = alpha(3) * n(2);
-% lambda_cell{4}(n) = alpha(4) * n(3);
+% lambda_k{1}(n) = alpha(1) * n(1) * (n(1) -1);
+% lambda_k{2}(n) = alpha(2) * n(2);
+% lambda_k{3}(n) = alpha(3) * n(2);
+% lambda_k{4}(n) = alpha(4) * n(3);
 % % 
 % Fig. 2g example
-% lambda_cell{1}(n) = alpha(1) * n(1);
-% lambda_cell{2}(n) = alpha(2) * n(1) *n(2);
-% lambda_cell{3}(n) = alpha(3) * n(2);
+% lambda_k{1}(n) = alpha(1) * n(1);
+% lambda_k{2}(n) = alpha(2) * n(1) *n(2);
+% lambda_k{3}(n) = alpha(3) * n(2);
 % assumeAlso(n(1)+n(2) == 20);
 
 
 % % New example - necessary theta-omega
 % syms g_const positive
-% lambda_cell{1}(n) = alpha(1) * g_const;
-% lambda_cell{2}(n) = (g_const+1) * alpha(2) * n(1);
-% lambda_cell{3}(n) = g_const * alpha(3) * n(2);
-% lambda_cell{4}(n) = alpha(4) * n(1);
-% lambda_cell{5}(n) = alpha(5) * n(1) *(n(1)-1);
-% lambda_cell{6}(n) = alpha(6) * n(1) *n(2);
+% lambda_k{1}(n) = alpha(1) * g_const;
+% lambda_k{2}(n) = (g_const+1) * alpha(2) * n(1);
+% lambda_k{3}(n) = g_const * alpha(3) * n(2);
+% lambda_k{4}(n) = alpha(4) * n(1);
+% lambda_k{5}(n) = alpha(5) * n(1) *(n(1)-1);
+% lambda_k{6}(n) = alpha(6) * n(1) *n(2);
 % assumeAlso(alpha(1) == alpha(4));
 % assumeAlso(alpha(2) == alpha(5));
 % assumeAlso(alpha(3) == alpha(6));
@@ -104,7 +103,7 @@ disp(['The number of weakly reversible and deficiency zero translated networks i
 PF_idx = 0;
 for trans_net = 1:(numel(Solution)/2) % index of translated network.
     % 1 <= trans_net <= numel(Solution)
-    disp(['Performing propensity factorization for a translated network ', num2str(trans_net), '.']);
+    disp(['Performing propensity factorization for the translated network ', num2str(trans_net), '.']);
     sources_trans = Solution{trans_net, 1};
     products_trans = Solution{trans_net, 2};
     stoi_trans = products_trans - sources_trans;
@@ -120,7 +119,7 @@ for trans_net = 1:(numel(Solution)/2) % index of translated network.
 
     for k = 1:K_trans
         for j = Index{trans_net,k}
-            lambda_trans_cell{k} = lambda_trans_cell{k} + lambda_cell{j};
+            lambda_trans_cell{k} = lambda_trans_cell{k} + lambda_k{j};
         end
     end
 
@@ -143,9 +142,10 @@ for trans_net = 1:(numel(Solution)/2) % index of translated network.
     % syms T0 positive
     % assumeAlso(T0, 'integer')
     sp_flag = 0; % flag for finding an appropriate start point n_0 for the theta construction step.
-    sp_weight = 0;
+    sp_weight = -1;
     while sp_flag == 0
         sp_flag = 1;
+        sp_weight = sp_weight + 1;
         start_point = sp_weight * ones(d,1);
         for k = 1:K_trans
             sp_plus_stoi = num2cell(start_point + sources_trans(:,k));
@@ -153,7 +153,16 @@ for trans_net = 1:(numel(Solution)/2) % index of translated network.
                 sp_flag = 0;
             end
         end
+        if sp_weight > 100 % to avoid infinite while loop.
+            disp('The weight of strat point is too large.');
+            break
+        end
     end
+    % start_point = [5;5]; if stoi_trans == [];
+    if prod(null(stoi_trans', 'r') > 0) == 1
+        start_point = start_point + 5;
+    end
+    
     
     elementary_coordinates = CRN_solve_sym_linear(elementary_basis, start_point, n);
 
@@ -162,17 +171,21 @@ for trans_net = 1:(numel(Solution)/2) % index of translated network.
 
     coord_cell = struct2cell(elementary_coordinates);
     theta(ncell{:}) = simplify(CRN_theta_construction(start_point, coord_cell, elementary_basis, F));
-    factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans_cell, theta, kappa);
+    factorization_TF = CRN_check_factorization_condition(sources_trans, lambda_trans_cell, theta, kappa, ncell);
     if prod(factorization_TF) == 1
-        disp("All the factorization conditions hold!");
+        disp(['All the factorization conditions hold for the translated network ', num2str(trans_net), '!']);        
         PF_idx = 1;
         break;
     end
 end
 
 if PF_idx == 0
-     disp("All the translated networks do not have the desired propensity factorization!");
+     disp("None of the translated networks has the desired propensity factorization.");
 end
+
+
+% piecewise(~in((alpha2 - alpha4)/alpha4, 'integer') | ~(alpha2 - alpha4)/alpha4 in Dom::Interval([-n1], [-1]), (alpha1^(n1 + n2)*gamma(alpha2/alpha4))/(alpha3^n2*alpha4^n1*gamma(n1 + 1)*gamma((alpha2 + alpha4*n1)/alpha4)*factorial(n2)))
+
 
 %% Compute CBE and derive a stationary distribuiton pi(n).
 [complexes_for_cbe, ~ , sources_idx] = unique(sources_trans', 'rows', 'stable');

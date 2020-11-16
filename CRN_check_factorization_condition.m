@@ -1,9 +1,9 @@
-function factorization_TF = CRN_check_factorization_condition(complexes, lambda_cell, theta, kappa)
+function factorization_TF = CRN_check_factorization_condition(complexes, lambda_cell, theta, kappa, ncell)
 % Check the factorization conditions for all the reactions.
 % compute the function omega using the condition of the first reaction.
-[d, K] = size(complexes);
-syms n [d 1] integer
-ncell = sym2cell(n);
+[~, K] = size(complexes);
+% syms n [d 1] integer
+% ncell = sym2cell(n);
 tmp_arg_n_nu1 = sym2cell(cellfun(@sum, ncell) + complexes(:,1));
 omega(ncell{:}) = lambda_cell{1}(tmp_arg_n_nu1{:}) / (kappa(1) *theta(tmp_arg_n_nu1{:})); 
 

@@ -29,11 +29,12 @@ for j = 2:size(additional_complex_tmp,2)
     additional_complex(:,order_number(order_tmp),order_tmp) = additional_complex_tmp(:,j);
 end
 
-%%%%
+% 
 sources_copy = -ones(d, max_copy_number, K);
 products_copy = -ones(d, max_copy_number, K);
 order_number_cumul = cumsum(order_number);
-reaction_orders = sum(sources_reduced);
+% reaction_orders = sum(sources_reduced); % consider only sources for the reaction orders
+reaction_orders = max(sum(sources_reduced), sum(products_reduced)); % consider both sources and products for the reaction orders. It is valid because the resulting network is weakly reversible.
 
 for k = 1:K
     sources_copy(:,1,k) = sources_reduced(:,k);
@@ -57,18 +58,19 @@ for k = 1:K
     end
 end
 number_of_comb = prod(number_of_copies);
-all_posibilities = ones(K, number_of_comb);
+% all_posibilities = ones(K, number_of_comb);
 % create a matrix containing all vectors between ones(K,1) and number_of_copies.
-for ii = 2:number_of_comb
-    all_posibilities(:,ii) = all_posibilities(:,ii-1);
-    all_posibilities(1,ii) = all_posibilities(1,ii-1) + 1;
-    for k = 1:K
-        if all_posibilities(k,ii) > number_of_copies(k)
-            all_posibilities(k,ii) = 1;
-            all_posibilities(k+1,ii) = all_posibilities(k+1,ii) + 1;
-        end
-    end
-end
+% for ii = 2:number_of_comb
+%     all_posibilities(:,ii) = all_posibilities(:,ii-1);
+%     all_posibilities(1,ii) = all_posibilities(1,ii-1) + 1;
+%     for k = 1:K
+%         if all_posibilities(k,ii) > number_of_copies(k)
+%             all_posibilities(k,ii) = 1;
+%             all_posibilities(k+1,ii) = all_posibilities(k+1,ii) + 1;
+%         end
+%     end
+% end
+
 
 sources_tmp = -ones(d, K);
 products_tmp = -ones(d, K);
@@ -78,10 +80,21 @@ sol_idx = 1;
 Solution = {};
 Index = {};
 
+current_copy = ones(K, 1);
+current_copy(1) = 0;
+% create a matrix containing a vector between ones(K,1) and number_of_copies.
 for ii = 1:number_of_comb
+    current_copy(1) = current_copy(1) + 1;
     for k = 1:K
-        sources_tmp(:, k) = sources_copy(:, all_posibilities(k,ii), k);
-        products_tmp(:, k) = products_copy(:, all_posibilities(k,ii), k);
+        if current_copy(k) > number_of_copies(k)
+            current_copy(k) = 1;
+            current_copy(k+1) = current_copy(k+1) + 1;
+        end
+    end 
+    
+    for k = 1:K
+        sources_tmp(:, k) = sources_copy(:, current_copy(k), k);
+        products_tmp(:, k) = products_copy(:, current_copy(k), k);
     end
     [S1,S2] = countlinkage(sources_tmp, products_tmp);
     % S1: the number of strongly connected components

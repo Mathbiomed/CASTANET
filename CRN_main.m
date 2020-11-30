@@ -59,7 +59,7 @@ lambda_k{2}(n) = alpha(2) * n(1);
 lambda_k{3}(n) = alpha(3) * n(2);
 lambda_k{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
-% 
+
 % Fig. 2a example
 % lambda_k{1}(n) = alpha(1);
 % lambda_k{2}(n) = alpha(2) * n(1) * (n(1) -1);
@@ -125,13 +125,23 @@ for trans_net = 1:(numel(Solution)/2) % index of translated network.
 
     % set up the kinetic parameters kappa_k for the deterministic mass-action
     % kinetic model on the translated network.
-
-
+    
+    
+    
     syms kappa [1 K_trans] positive
     for k = 1:K_trans
         tmp = cell2mat(Index(trans_net,k));
-        kappa(k) = alpha(min(tmp));
+%         kappa(k) = alpha(min(tmp));
+        [coeff_tmp, term_tmp] = coeffs(lambda_trans_cell{k}, n);
+        coeff_tmp_list = coeff_tmp(ncell{:});
+        coeff_of_highest_list = coeff_tmp_list(polynomialDegree(term_tmp) == max(polynomialDegree(term_tmp)));
+        kappa(k) = coeff_of_highest_list(1);
     end
+    % need to be edited. if propensities are polynomials then this code
+    % valid. Otherwise, kappa(k) = alpha(min(tmp)) would be a better choice.
+    % -- 2020.11.24. Hyukpyo Hong.
+    
+    
 
     [a_list_tmp, b_list_tmp, elementary_basis] = CRN_find_elementary_path(sources_trans); % the row vectors of H form a basis.
     F_tmp = CRN_find_elementary_function(sources_trans, lambda_trans_cell, ncell, kappa);

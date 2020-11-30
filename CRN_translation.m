@@ -7,6 +7,20 @@ end
 % d: the number of species (dimension)
 % K: the number of reactions
 
+% if all the reactions only consume (or produce) certain species
+% than the network cannot be weakly reversible even with network
+% translation.
+stoi_vec = products - sources;
+is_consume = (stoi_vec <= 0);
+is_produce = (stoi_vec >= 0);
+is_preserve = (stoi_vec == 0);
+stoi_dim = rank(stoi_vec);
+if sum(prod(is_consume,2) + prod(is_produce,2) -2*prod(is_preserve,2)) > 0
+   Solution = {};
+   Index = {};
+   return
+end
+
 sources_reduced = -ones(d, K);
 products_reduced = -ones(d, K);
 
@@ -57,20 +71,16 @@ for k = 1:K
         number_of_copies(k) = order_number_cumul(max_order - reaction_orders(k)) + 1;
     end
 end
-number_of_comb = prod(number_of_copies);
-% all_posibilities = ones(K, number_of_comb);
-% create a matrix containing all vectors between ones(K,1) and number_of_copies.
-% for ii = 2:number_of_comb
-%     all_posibilities(:,ii) = all_posibilities(:,ii-1);
-%     all_posibilities(1,ii) = all_posibilities(1,ii-1) + 1;
-%     for k = 1:K
-%         if all_posibilities(k,ii) > number_of_copies(k)
-%             all_posibilities(k,ii) = 1;
-%             all_posibilities(k+1,ii) = all_posibilities(k+1,ii) + 1;
-%         end
-%     end
-% end
+number_of_comb = prod(number_of_copies)
 
+% reject if there is no possibility to attain the desired properties:
+% weak reversibility and zero deficiency.
+
+
+
+
+%
+%
 
 sources_tmp = -ones(d, K);
 products_tmp = -ones(d, K);
@@ -84,6 +94,10 @@ current_copy = ones(K, 1);
 current_copy(1) = 0;
 % create a matrix containing a vector between ones(K,1) and number_of_copies.
 for ii = 1:number_of_comb
+    if rem(ii,10000) == 0
+        disp('ii');
+        disp(ii);
+    end
     current_copy(1) = current_copy(1) + 1;
     for k = 1:K
         if current_copy(k) > number_of_copies(k)
@@ -96,10 +110,27 @@ for ii = 1:number_of_comb
         sources_tmp(:, k) = sources_copy(:, current_copy(k), k);
         products_tmp(:, k) = products_copy(:, current_copy(k), k);
     end
+    
+    num_complexes = size(unique([sources_tmp, products_tmp]','rows')',2);
+    
+    % if any of the below conditions holds then the deficiency cannot be 0.
+    if num_complexes < stoi_dim + 1
+        continue
+    elseif num_complexes > 2*stoi_dim
+        continue
+    end
+    
+    % the below condition indicate that there is unused species.
+    if sum(prod([sources,products] == 0, 2)) > 0
+        continue
+    end 
+    
     [S1,S2] = countlinkage(sources_tmp, products_tmp);
     % S1: the number of strongly connected components
     % S2: the number of linkage classes
-    if defi(sources_tmp, products_tmp) == 0 & S1 == S2
+    
+    deficiency = num_complexes - S2 - stoi_dim;
+    if deficiency == 0 & S1 == S2
         sol_idx = sol_idx + 1;
         complexes_tmp = [sources_tmp; products_tmp];
         [complexes_unique, ~, ic] = unique(complexes_tmp', 'rows');
@@ -114,9 +145,9 @@ for ii = 1:number_of_comb
         end
         Index = [Index; indexset];
     end
-    if rem(ii,floor(number_of_comb/20)) == 0
+%     if rem(ii,floor(number_of_comb/20)) == 0
 %          disp(['Searching translated netowrks ... ', num2str(100*ii/number_of_comb, 3), '% completed.']);
-    end
+%     end
 end
 
 end

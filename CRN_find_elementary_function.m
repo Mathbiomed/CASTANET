@@ -1,18 +1,19 @@
-function F = CRN_find_elementary_function(complexes, lambda_cell, kappa)
+function F = CRN_find_elementary_function(complexes, lambda_cell, ncell, kappa)
 % complexes: d * K matrix whose column vectors are the source complexs of
 % reactions.
 [d, ~] = size(complexes);
 
-syms n [d 1] integer
-ncell = sym2cell(n);
+% syms n [d 1] integer
+% ncell = sym2cell(n);
 
-[a_list_tmp, b_list_tmp, H] = CRN_find_elemtary_path(complexes);
+[a_list_tmp, b_list_tmp, H] = CRN_find_elementary_path(complexes);
 % the row vectors of H form a basis.
 
 number_of_elementary_path = rank(H);
 length_of_elementary_path = sum(a_list_tmp ~= 0, 2); % compute row sum.
 
-F_tmp(n) = sym(zeros(number_of_elementary_path, 1));
+% F_tmp(n) = sym(zeros(number_of_elementary_path, 1));
+F_tmp = sym(zeros(number_of_elementary_path, 1));
 F = sym2cell(formula(F_tmp));
 
 for l = 1:number_of_elementary_path

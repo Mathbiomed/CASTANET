@@ -12,12 +12,6 @@ function cbe = CRN_compute_cbe(complexes, M_kappa)
 % matrix represents there is no reaction. 
 % M_kappa can be either numeric or symbolic matrix.
 
-
-% test case
-% syms kappa1 kappa2 kappa3 kappa4 positive
-% complexes = [1 1 0; 0 2 0; 0 0 1]';
-% M_kappa = [0, kappa2, kappa4; kappa1, 0, 0; 0, kappa3, 0];
-
 [d, num_C] = size(complexes);
 syms c [d 1] positive
 intensities = (prod(c.^complexes, 1))';

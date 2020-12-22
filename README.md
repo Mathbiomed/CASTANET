@@ -26,6 +26,8 @@ Since all the below functions are automatically run by CRN_main.m function, user
 7. CRN_compute_cbe.m
 > This functions compute a complex balanced equilibrium of the deterministic mass action model for the translated network. 
 
+## Found Examples
+1. In FoundExamples folder, we have stored the data representing biochemical reaction networks whose stationary distributions can be derived with CASTANET. The subfolders 2D and 3D contain the examples with two and three species, respectively. Note that all the rate constants are set to be one for simplicity.
 
 ## Limitations
 1. Solve the system of linear equation with symbolic variables.

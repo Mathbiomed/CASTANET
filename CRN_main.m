@@ -9,12 +9,11 @@
 clear; clc;
 
 % Fig. 1 example
-sources = [0 0; 1 0; 0 1; 2 0]';
-products = [1 0; 0 1; 0 0; 1 1]';
+% sources = [0 0; 1 0; 0 1; 2 0]';
+% products = [1 0; 0 1; 0 0; 1 1]';
 
 % (number of reaction) * (number of species) matrix containing the source 
 % and product complex vectors of reactions, respectively.
-
 
 [d, K] = size(sources);
 %propensities = [];
@@ -33,10 +32,10 @@ lambda_k = sym2cell(formula(lambda));
 % tt = 1;
 syms alpha [K 1] positive
 % Fig. 1 example
-lambda_k{1}(n) = alpha(1);
-lambda_k{2}(n) = alpha(2) * n(1);
-lambda_k{3}(n) = alpha(3) * n(2);
-lambda_k{4}(n) = alpha(4) * n(1) * (n(1) -1);
+% lambda_k{1}(n) = alpha(1);
+% lambda_k{2}(n) = alpha(2) * n(1);
+% lambda_k{3}(n) = alpha(3) * n(2);
+% lambda_k{4}(n) = alpha(4) * n(1) * (n(1) -1);
 
 %% Performing Network translation
 

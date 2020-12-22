@@ -20,8 +20,10 @@ basis = basis(1:s, :);
 assumeAlso((n_vector - start_point)' * Z == 0) 
 % this assumption forces n in the augmented state space.
 
-c_vector = sym('c', [1 s], 'integer');
+c_vector = sym('c', [1 s]);
+
 assumeAlso(c_vector >= 0)
-solutions = solve((c_vector * basis)' == n_vector - start_point, c_vector, 'ReturnConditions', true);
+% assumeAlso(c_vector, 'integer')
+solutions = solve((c_vector * basis)' == n_vector - start_point, c_vector, 'ReturnConditions', false);
 
 end
